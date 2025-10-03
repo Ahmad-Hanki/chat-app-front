@@ -1,13 +1,25 @@
-import { MutationConfig } from "@/config/queryClient";
+import { MutationConfig, QueryConfig } from "@/config/queryClient";
 import apiClient from "@/lib/api";
 import {
   SignInSchemaTypeInput,
+  SignUpSchemaTypeInput,
   VerifyEmailSchemaTypeInput,
 } from "@/schemas/auth-schemas";
-import { useSignUp } from "@clerk/clerk-expo";
-import { useMutation } from "@tanstack/react-query";
+import { User } from "@/types/api";
+import { useSignIn, useSignUp } from "@clerk/clerk-expo";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 type UseSignUpOptions = {
+  mutationConfig?: MutationConfig<
+    (data: SignUpSchemaTypeInput) => Promise<void>
+  >;
+};
+type UseSignInOptions = {
   mutationConfig?: MutationConfig<
     (data: SignInSchemaTypeInput) => Promise<void>
   >;
@@ -17,7 +29,7 @@ export const useSignUpMutation = ({ mutationConfig }: UseSignUpOptions) => {
   const { isLoaded, signUp } = useSignUp();
 
   return useMutation({
-    mutationFn: async (data: SignInSchemaTypeInput) => {
+    mutationFn: async (data: SignUpSchemaTypeInput) => {
       console.log("Signing up user with data:", data);
       if (!isLoaded) return;
 
@@ -71,7 +83,7 @@ export const useVerifyEmailMutation = ({
 
   return useMutation({
     mutationFn: async (
-      data: VerifyEmailSchemaTypeInput & SignInSchemaTypeInput
+      data: VerifyEmailSchemaTypeInput & SignUpSchemaTypeInput
     ) => {
       if (!isLoaded) return;
 
@@ -106,5 +118,68 @@ export const useVerifyEmailMutation = ({
       mutationConfig?.onSuccess?.(...args);
     },
     ...mutationConfig,
+  });
+};
+
+const getUser = async (email: string): Promise<{ data: User } | null> => {
+  try {
+    const response = await apiClient.get(`/user/email/${email}`);
+    const data = await response.data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    return null;
+  }
+};
+
+export const useSignInMutation = ({ mutationConfig }: UseSignInOptions) => {
+  const queryClient = useQueryClient();
+  const { signIn, setActive, isLoaded } = useSignIn();
+
+  return useMutation({
+    mutationFn: async (data: SignInSchemaTypeInput) => {
+      if (!isLoaded) return;
+
+      try {
+        const signInAttempt = await signIn.create({
+          identifier: data.email,
+          password: data.password,
+        });
+        if (signInAttempt.status == "complete") {
+          queryClient.invalidateQueries({
+            queryKey: getUserQueryOptions({email: data.email}).queryKey,
+          });
+          await setActive({ session: signInAttempt.createdSessionId });
+        } else {
+          console.error(JSON.stringify(signInAttempt, null, 2));
+        }
+      } catch (error) {
+        console.error("Error during sign up:", error);
+        throw error;
+      }
+    },
+    onSuccess: (...args) => {
+      mutationConfig?.onSuccess?.(...args);
+    },
+    ...mutationConfig,
+  });
+};
+
+export const getUserQueryOptions = ({ email }: { email: string }) => {
+  return queryOptions({
+    queryKey: ["user"],
+    queryFn: () => getUser(email),
+  });
+};
+
+type UseUserOptions = {
+  queryConfig?: QueryConfig<typeof getUserQueryOptions>;
+  email: string;
+};
+
+export const useUserData = ({ queryConfig, email }: UseUserOptions) => {
+  return useQuery({
+    ...getUserQueryOptions({ email }),
+    ...queryConfig,
   });
 };

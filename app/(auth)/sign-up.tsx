@@ -2,9 +2,10 @@ import { VerificationCodeDialog } from "@/components/auth/verification-code";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { SignInSchema, SignInSchemaTypeInput } from "@/schemas/auth-schemas";
+import { SignUpSchema, SignUpSchemaTypeInput } from "@/schemas/auth-schemas";
 import { useSignUpMutation } from "@/server/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "expo-router";
 import React from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 
@@ -17,15 +18,17 @@ import {
 } from "react-native";
 
 const SignUpPage = () => {
+  const router = useRouter();
   const [verificationCodeOpen, setVerificationCodeOpen] = React.useState(false);
   const {
     control,
     handleSubmit,
     formState: { errors },
     watch,
-  } = useForm<SignInSchemaTypeInput>({
-    resolver: zodResolver(SignInSchema),
+  } = useForm<SignUpSchemaTypeInput>({
+    resolver: zodResolver(SignUpSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -41,8 +44,8 @@ const SignUpPage = () => {
     },
   });
 
-  const onSubmit: SubmitHandler<SignInSchemaTypeInput> = (
-    data: SignInSchemaTypeInput
+  const onSubmit: SubmitHandler<SignUpSchemaTypeInput> = (
+    data: SignUpSchemaTypeInput
   ) => {
     mutate(data);
   };
@@ -170,8 +173,21 @@ const SignUpPage = () => {
 
               <View className="mt-4">
                 <Button onPress={handleSubmit(onSubmit)} className="w-full">
-                  {isPending ? <ActivityIndicator /> : <Text>Sign In</Text>}
+                  {isPending ? <ActivityIndicator /> : <Text>Sign Up</Text>}
                 </Button>
+              </View>
+              <View className="mt-4">
+                <Text>
+                  Already have an account?{" "}
+                  <Text
+                    onPress={() => {
+                      router.push("/(auth)/sign-in");
+                    }}
+                    className="text-blue-500"
+                  >
+                    Sign In
+                  </Text>
+                </Text>
               </View>
             </View>
           </ScrollView>
