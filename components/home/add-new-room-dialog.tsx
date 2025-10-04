@@ -9,68 +9,58 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Text } from "@/components/ui/text";
+
 import {
-  VerifyEmailSchema,
-  VerifyEmailSchemaTypeInput,
-} from "@/schemas/auth-schemas";
-import { useVerifyEmailMutation } from "@/server/auth";
+  userRoomSchema,
+  UserRoomSchemaTypeInput,
+} from "@/schemas/user-room-scheme";
+import { useCreateUserRoom } from "@/server/usersRooms/creaet-users-rooms";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "expo-router";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { ActivityIndicator, View } from "react-native";
 import { Input } from "../ui/input";
 
-export function VerificationCodeDialog({
+export function CreateNewRoomDialog({
   open,
   setOpen,
-  name,
-  email,
+  userId,
 }: Readonly<{
   open: boolean;
+  userId: string;
   setOpen: (open: boolean) => void;
-  name: string;
-  email: string;
 }>) {
-  const router = useRouter();
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<VerifyEmailSchemaTypeInput>({
-    resolver: zodResolver(VerifyEmailSchema),
+  } = useForm<UserRoomSchemaTypeInput>({
+    resolver: zodResolver(userRoomSchema),
     defaultValues: {
-      code: "",
+      roomName: "",
+      userId,
     },
   });
 
-  const { mutate, isPending } = useVerifyEmailMutation({
+  const { mutate, isPending } = useCreateUserRoom({
     mutationConfig: {
       onSuccess: async () => {
-        router.replace("/(tabs)/home");
-        console.log("User stored in DB successfully");
         setOpen(false);
       },
     },
   });
 
-  const onSubmit: SubmitHandler<VerifyEmailSchemaTypeInput> = (
-    data: VerifyEmailSchemaTypeInput
+  const onSubmit: SubmitHandler<UserRoomSchemaTypeInput> = (
+    data: UserRoomSchemaTypeInput
   ) => {
-    mutate({
-      code: data.code,
-      email: email,
-      password: "",
-      confirmPassword: "",
-      name: name,
-    });
+    mutate(data);
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="min-w-full">
         <DialogHeader>
-          <DialogTitle>Verify {email}</DialogTitle>
+          <DialogTitle>Create a New Room</DialogTitle>
           <DialogDescription>
-            Please enter the verification code sent to your email address.
+            Enter the details to create a new room.
           </DialogDescription>
         </DialogHeader>
         <View className="grid gap-4">
@@ -78,10 +68,10 @@ export function VerificationCodeDialog({
             <View className="gap-2">
               <Controller
                 control={control}
-                name="code"
+                name="roomName"
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
-                    placeholder="Code"
+                    placeholder="Room Name"
                     value={value}
                     onBlur={onBlur}
                     onChangeText={onChange}
@@ -90,9 +80,30 @@ export function VerificationCodeDialog({
                   />
                 )}
               />
-              {errors.code && (
+              {errors.roomName && (
                 <Text className="text-sm text-red-500">
-                  {errors.code.message}
+                  {errors.roomName.message}
+                </Text>
+              )}
+            </View>
+            <View className="gap-2">
+              <Controller
+                control={control}
+                name="roomNumber"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <Input
+                    placeholder="Room Number"
+                    value={value.toString()}
+                    onBlur={onBlur}
+                    onChangeText={(text) => onChange(Number(text))}
+                    autoCapitalize="none"
+                    className="w-full"
+                  />
+                )}
+              />
+              {errors.roomNumber && (
+                <Text className="text-sm text-red-500">
+                  {errors.roomNumber.message}
                 </Text>
               )}
             </View>
