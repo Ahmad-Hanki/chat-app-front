@@ -1,7 +1,7 @@
 import { NAV_THEME } from "@/lib/theme";
 import { useColorScheme } from "nativewind";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const SafeScreen = ({ children }: { children: React.ReactNode }) => {
@@ -21,7 +21,5 @@ const SafeScreen = ({ children }: { children: React.ReactNode }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default SafeScreen;

@@ -6,7 +6,7 @@ import {
   VerifyEmailSchemaTypeInput,
 } from "@/schemas/auth-schemas";
 import { User } from "@/types/api";
-import { useSignIn, useSignUp } from "@clerk/clerk-expo";
+import { useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
 import {
   queryOptions,
   useMutation,
@@ -80,6 +80,7 @@ export const useVerifyEmailMutation = ({
   mutationConfig,
 }: UseVerifyEmailOptions) => {
   const { isLoaded, signUp, setActive } = useSignUp();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (
@@ -107,6 +108,10 @@ export const useVerifyEmailMutation = ({
             name: data.name,
           });
 
+          queryClient.invalidateQueries({
+            queryKey: getUserQueryOptions({ email: data.email }).queryKey,
+          });
+
           await setActive({ session: signUpAttempt.createdSessionId });
         }
       } catch (error) {
@@ -123,7 +128,8 @@ export const useVerifyEmailMutation = ({
 
 const getUser = async (email: string): Promise<{ data: User } | null> => {
   try {
-    const response = await apiClient.get(`/user/email/${email}`);
+    if (!email) return null;
+    const response = await apiClient.get(`/user/${email}`);
     const data = await response.data;
     return data;
   } catch (error) {
@@ -147,7 +153,7 @@ export const useSignInMutation = ({ mutationConfig }: UseSignInOptions) => {
         });
         if (signInAttempt.status == "complete") {
           queryClient.invalidateQueries({
-            queryKey: getUserQueryOptions({email: data.email}).queryKey,
+            queryKey: getUserQueryOptions({ email: data.email }).queryKey,
           });
           await setActive({ session: signInAttempt.createdSessionId });
         } else {
@@ -167,19 +173,23 @@ export const useSignInMutation = ({ mutationConfig }: UseSignInOptions) => {
 
 export const getUserQueryOptions = ({ email }: { email: string }) => {
   return queryOptions({
-    queryKey: ["user"],
+    queryKey: ["user", email],
     queryFn: () => getUser(email),
   });
 };
 
 type UseUserOptions = {
   queryConfig?: QueryConfig<typeof getUserQueryOptions>;
-  email: string;
 };
 
-export const useUserData = ({ queryConfig, email }: UseUserOptions) => {
+export const useUserData = ({ queryConfig }: UseUserOptions = {}) => {
+  const { isLoaded, isSignedIn, user } = useUser();
+  const email = user?.emailAddresses[0].emailAddress ?? "";
+
   return useQuery({
-    ...getUserQueryOptions({ email }),
+    ...getUserQueryOptions({
+      email,
+    }),
     ...queryConfig,
   });
 };

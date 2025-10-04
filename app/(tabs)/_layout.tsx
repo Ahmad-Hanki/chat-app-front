@@ -3,6 +3,7 @@ import { Tabs } from "expo-router";
 import React from "react";
 
 const TabsLayout = () => {
+  
   return (
     <Tabs
       screenOptions={{
@@ -21,7 +22,7 @@ const TabsLayout = () => {
     >
       <Tabs.Screen
         options={{
-          title: "Explore",
+          title: "Home",
           tabBarIcon: ({ focused, size, color }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}

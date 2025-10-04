@@ -14,7 +14,6 @@ import {
   VerifyEmailSchemaTypeInput,
 } from "@/schemas/auth-schemas";
 import { useVerifyEmailMutation } from "@/server/auth";
-import { useUser } from "@clerk/clerk-expo";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -33,7 +32,6 @@ export function VerificationCodeDialog({
   email: string;
 }>) {
   const router = useRouter();
-  const { user } = useUser();
   const {
     control,
     handleSubmit,
@@ -48,7 +46,7 @@ export function VerificationCodeDialog({
   const { mutate, isPending } = useVerifyEmailMutation({
     mutationConfig: {
       onSuccess: async () => {
-        //   router.replace("/(main)/chats");
+        router.replace("/(tabs)/home");
         console.log("User stored in DB successfully");
         setOpen(false);
       },
