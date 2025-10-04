@@ -31,7 +31,6 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   async (config) => {
     const fullUrl = `${config.baseURL}${config.url}`;
-    console.log("[Axios Request] Full URL:", fullUrl);
     // If requireAuth is true, add Firebase token to headers
     if (config.requireAuth) {
       try {

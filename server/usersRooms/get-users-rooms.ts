@@ -1,15 +1,15 @@
 import { QueryConfig } from "@/config/queryClient";
 import apiClient from "@/lib/api";
-import { Room } from "@/types/api";
+import { UsersRooms } from "@/types/api";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
 export const getUsersRooms = async ({
   userId,
 }: {
   userId: string;
-}): Promise<{ data: Room[] } | null> => {
+}): Promise<{ data: UsersRooms[] } | null> => {
   const response = await apiClient.get(`/rooms/${userId}`);
-  return response.data;
+  return response.data ?? null;
 };
 
 export const getUsersRoomsQueryOptions = ({ userId }: { userId: string }) => {

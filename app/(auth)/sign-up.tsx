@@ -38,7 +38,6 @@ const SignUpPage = () => {
   const { mutate, isPending } = useSignUpMutation({
     mutationConfig: {
       onSuccess: () => {
-        console.log("Sign up successful, please verify your email.");
         setVerificationCodeOpen(true);
       },
     },

@@ -6,12 +6,18 @@ const TabsLayout = () => {
     <Stack>
       {/* Home - no header */}
       <Stack.Screen
-        name="home"
+        name="home/index"
         options={{
           headerShown: false,
         }}
       />
-
+      {/* Dynamic Room */}
+      <Stack.Screen
+        name="home/[roomId]" // reference the dynamic route
+        options={{
+          headerShown: false,
+        }}
+      />
       {/* Settings - shows header */}
       <Stack.Screen
         name="settings"

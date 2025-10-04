@@ -1,4 +1,5 @@
 import { CreateNewRoomDialog } from "@/components/home/add-new-room-dialog";
+import RoomsList from "@/components/home/rooms-list";
 import { UserMenu } from "@/components/user-menu";
 import { useUserData } from "@/server/auth";
 import { useUsersRooms } from "@/server/usersRooms/get-users-rooms";
@@ -15,7 +16,7 @@ const Home = () => {
   });
 
   return (
-    <View className="p-4" style={{ flex: 1 }}>
+    <View className="p-4 space-y-4" style={{ flex: 1 }}>
       <CreateNewRoomDialog
         open={open}
         setOpen={setOpen}
@@ -29,6 +30,9 @@ const Home = () => {
           color="green"
           onPress={() => setOpen(true)}
         />
+      </View>
+      <View>
+        <RoomsList rooms={rooms?.data ?? []} />
       </View>
     </View>
   );

@@ -33,6 +33,7 @@ export function CreateNewRoomDialog({
     control,
     handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<UserRoomSchemaTypeInput>({
     resolver: zodResolver(userRoomSchema),
     defaultValues: {
@@ -54,6 +55,7 @@ export function CreateNewRoomDialog({
   ) => {
     mutate(data);
   };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="min-w-full">
@@ -93,7 +95,7 @@ export function CreateNewRoomDialog({
                 render={({ field: { onChange, onBlur, value } }) => (
                   <Input
                     placeholder="Room Number"
-                    value={value.toString()}
+                    value={value?.toString() ?? ""}
                     onBlur={onBlur}
                     onChangeText={(text) => onChange(Number(text))}
                     autoCapitalize="none"
@@ -117,7 +119,7 @@ export function CreateNewRoomDialog({
           </DialogClose>
           <Button onPress={handleSubmit(onSubmit)} disabled={false}>
             <Text>
-              {isPending ? <ActivityIndicator size="small" /> : "Verify"}
+              {isPending ? <ActivityIndicator size="small" /> : "Create Room"}
             </Text>
           </Button>
         </DialogFooter>

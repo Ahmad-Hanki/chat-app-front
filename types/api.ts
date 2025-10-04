@@ -20,7 +20,7 @@ export type Room = {
   name: string;
   roomNumber: number;
   createdAt: string; // serialized to string
-  Message: Message[]; // array of messages (in your query, it's last message with take:1)
+  message: Message[]; // array of messages (in your query, it's last message with take:1)
 };
 
 export type UsersRooms = {
