@@ -6,7 +6,7 @@ import {
   VerifyEmailSchemaTypeInput,
 } from "@/schemas/auth-schemas";
 import { User } from "@/types/api";
-import { useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
+import { useClerk, useSignIn, useSignUp, useUser } from "@clerk/clerk-expo";
 import {
   queryOptions,
   useMutation,
@@ -23,6 +23,9 @@ type UseSignInOptions = {
   mutationConfig?: MutationConfig<
     (data: SignInSchemaTypeInput) => Promise<void>
   >;
+};
+type UseSignOutOptions = {
+  mutationConfig?: MutationConfig<() => Promise<void>>;
 };
 
 export const useSignUpMutation = ({ mutationConfig }: UseSignUpOptions) => {
@@ -183,7 +186,7 @@ type UseUserOptions = {
 };
 
 export const useUserData = ({ queryConfig }: UseUserOptions = {}) => {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { user } = useUser();
   const email = user?.emailAddresses[0].emailAddress ?? "";
 
   return useQuery({
@@ -191,5 +194,29 @@ export const useUserData = ({ queryConfig }: UseUserOptions = {}) => {
       email,
     }),
     ...queryConfig,
+  });
+};
+
+// sign out
+
+export const useSignOutMutation = ({
+  mutationConfig,
+}: UseSignOutOptions = {}) => {
+  const queryClient = useQueryClient();
+  const { signOut } = useClerk();
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        await signOut();
+        queryClient.clear();
+      } catch (error) {
+        console.error("Error during sign up:", error);
+        throw error;
+      }
+    },
+    onSuccess: (...args) => {
+      mutationConfig?.onSuccess?.(...args);
+    },
+    ...mutationConfig,
   });
 };
