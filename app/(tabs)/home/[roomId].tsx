@@ -1,5 +1,7 @@
 import { MessageList } from "@/components/home/chat/message-list";
+import { useUserData } from "@/server/auth";
 import { useRoomsMessages } from "@/server/messages/get-room-messages";
+import { useUsersRooms } from "@/server/usersRooms/get-users-rooms";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import {
@@ -11,10 +13,18 @@ import {
 
 const RoomId = () => {
   const { roomId } = useLocalSearchParams<{ roomId: string }>();
+  const { data } = useUserData();
 
-  const { data, isPending } = useRoomsMessages({
-    roomId,
-    queryConfig: { enabled: !!roomId },
+  const { data: rooms } = useUsersRooms({
+    userId: data?.data.id || "",
+    queryConfig: { enabled: !!data?.data.id },
+  });
+  const currentRoom = rooms?.data.find(
+    (room) => room.room.roomNumber.toString() == roomId
+  );
+  const { data: messages, isPending } = useRoomsMessages({
+    roomId: currentRoom?.room.id || "",
+    queryConfig: { enabled: !!currentRoom?.room.id },
   });
 
   if (isPending) {
@@ -32,7 +42,11 @@ const RoomId = () => {
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
       <View style={{ flex: 1 }}>
-        <MessageList messages={data?.data ?? []} roomId={roomId} />
+        <MessageList
+          messages={messages?.data ?? []}
+          roomId={roomId}
+          currentRoom={currentRoom}
+        />
       </View>
     </KeyboardAvoidingView>
   );

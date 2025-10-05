@@ -1,10 +1,17 @@
 import { Text } from "@/components/ui/text";
+import { UsersRooms } from "@/types/api";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, View } from "react-native";
 
-const ChatHeader = ({ roomId }: { roomId: string }) => {
+const ChatHeader = ({
+  roomId,
+  currentRoom,
+}: {
+  roomId: string;
+  currentRoom: UsersRooms | undefined;
+}) => {
   const router = useRouter();
   return (
     <View className="w-full flex-row justify-between ">
@@ -16,13 +23,11 @@ const ChatHeader = ({ roomId }: { roomId: string }) => {
         <Text className="text-blue-950">Chats</Text>
       </Pressable>
 
-      <Text className="font-bold">{roomId}</Text>
+      <Text className="font-bold">{currentRoom?.room.name}</Text>
 
       <AntDesign name="edit" size={20} color="blue" />
     </View>
   );
 };
-
-const styles = StyleSheet.create({});
 
 export default ChatHeader;
