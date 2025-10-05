@@ -13,6 +13,7 @@ export type Message = {
   userId: string;
   roomId: string;
   createdAt: string; // serialized to string if sending via JSON
+  user: User;
 };
 
 export type Room = {
