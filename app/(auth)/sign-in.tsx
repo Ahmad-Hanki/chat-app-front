@@ -59,7 +59,7 @@ const SignUpPage = () => {
         }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className=" gap-3 ">
+        <View className="gap-3">
           <View className=" my-6">
             <Text className="text-2xl font-bold text-center">Sign In</Text>
             <Text className="text-center">Sign in to continue</Text>
