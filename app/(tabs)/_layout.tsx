@@ -14,7 +14,7 @@ const TabsLayout = () => {
       />
       {/* Dynamic Room */}
       <Stack.Screen
-        name="home/[roomId]" // reference the dynamic route
+        name="home/[roomId]/index" // reference the dynamic route
         options={{
           headerShown: false,
         }}

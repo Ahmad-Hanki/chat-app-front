@@ -78,9 +78,6 @@ export function CreateNewRoomDialog({
     }
   };
 
-  console.log("Errors:", errors);
-  console.log(userId, "userId prop in dialog");
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="min-w-full flex-1 max-h-[400px]">
