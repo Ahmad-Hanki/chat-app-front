@@ -13,6 +13,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { cache } from "react";
 
 type UseSignUpOptions = {
   mutationConfig?: MutationConfig<
@@ -64,7 +65,6 @@ export const storeUserInDB = async (data: {
   name: string;
 }) => {
   try {
-    console.log(data);
     const response = await apiClient.post("/user", data);
     return response.data;
   } catch (error) {
@@ -96,10 +96,11 @@ export const useVerifyEmailMutation = ({
           code: data.code,
         });
 
-        if (signUpAttempt.status !== "complete") {
+        if (signUpAttempt.status != "complete") {
           throw new Error("Email verification failed");
         } else {
           const clerkUserId = signUpAttempt.createdUserId;
+          console.log("signUpAttempt result:", signUpAttempt);
 
           if (!clerkUserId) {
             throw new Error("User ID not found after verification");
@@ -129,17 +130,19 @@ export const useVerifyEmailMutation = ({
   });
 };
 
-const getUser = async (email: string): Promise<{ data: User } | null> => {
-  try {
-    if (!email) return null;
-    const response = await apiClient.get(`/user/${email}`);
-    const data = await response.data;
-    return data;
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    return null;
+export const getUser = cache(
+  async (email: string): Promise<{ data: User } | null> => {
+    try {
+      if (!email) return null;
+      const response = await apiClient.get(`/user/${email}`);
+      const data = response.data; // ✅ no need to await here
+      return data;
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      return null;
+    }
   }
-};
+);
 
 export const useSignInMutation = ({ mutationConfig }: UseSignInOptions) => {
   const queryClient = useQueryClient();
@@ -155,12 +158,17 @@ export const useSignInMutation = ({ mutationConfig }: UseSignInOptions) => {
           password: data.password,
         });
         if (signInAttempt.status == "complete") {
-          queryClient.invalidateQueries({
+          const userData = await getUser(data.email);
+          if (!userData?.data) {
+            throw new Error("User not found in database");
+          }
+          await queryClient.invalidateQueries({
             queryKey: getUserQueryOptions({ email: data.email }).queryKey,
           });
           await setActive({ session: signInAttempt.createdSessionId });
         } else {
           console.error(JSON.stringify(signInAttempt, null, 2));
+          throw new Error("Sign in failed");
         }
       } catch (error) {
         console.error("Error during sign up:", error);

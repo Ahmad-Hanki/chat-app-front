@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import React from "react";
 
 const TabsLayout = () => {
+  
   return (
     <Stack>
       {/* Home - no header */}

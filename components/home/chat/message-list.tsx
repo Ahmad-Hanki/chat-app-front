@@ -32,7 +32,7 @@ export const MessageList = ({
                 justifyContent: "center",
                 alignItems: "center",
               }
-            : { marginTop: 30, paddingVertical: 10, flexGrow: 1, gap: 15 } // adjust as needed for normal messages
+            : { paddingVertical: 10, flexGrow: 1, gap: 15 } // adjust as needed for normal messages
         }
         showsVerticalScrollIndicator={false}
       />

@@ -17,11 +17,18 @@ function Index() {
 
   useEffect(() => {
     if (!isLoaded) return;
-    if (isSignedIn) {
-      if (isLoading && data) return;
+
+    if (!isSignedIn) {
+      router.replace("/(auth)/sign-in");
+      return;
+    }
+
+    if (isLoading) return; // wait until user data is fetched
+
+    if (data?.data) {
       router.replace("/(tabs)/home");
-    } else router.replace("/(auth)/sign-in");
-  }, [isLoaded, isSignedIn, isLoading]);
+    }
+  }, [isLoaded, isSignedIn, isLoading, data]);
 
   return <ActivityIndicator size="large" />;
 }

@@ -42,7 +42,6 @@ export function CreateNewRoomDialog({
     resolver: zodResolver(userRoomSchema),
     defaultValues: {
       roomName: "",
-
       userId,
     },
   });
@@ -54,6 +53,7 @@ export function CreateNewRoomDialog({
       },
     },
   });
+
   const { mutate: joinMutate, isPending: joinIsPending } = useJoinUserRoom({
     mutationConfig: {
       onSuccess: async () => {
@@ -77,6 +77,9 @@ export function CreateNewRoomDialog({
       joinMutate(data);
     }
   };
+
+  console.log("Errors:", errors);
+  console.log(userId, "userId prop in dialog");
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

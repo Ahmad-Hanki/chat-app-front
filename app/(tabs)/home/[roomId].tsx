@@ -38,7 +38,7 @@ const RoomId = () => {
 
     // join the room
     socket.emit("join-room", currentRoom.room.id);
-    
+
     // Listens for "new-message" events from the server.
     socket.on("new-message", (message) => {
       setLiveMessages((prev) => [...prev, message]);
@@ -65,19 +65,13 @@ const RoomId = () => {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-    >
-      <View style={{ flex: 1 }}>
-        <MessageList
-          messages={liveMessages}
-          roomId={roomId}
-          currentRoom={currentRoom}
-        />
-      </View>
-    </KeyboardAvoidingView>
+    <View style={{ flex: 1 }}>
+      <MessageList
+        messages={liveMessages}
+        roomId={roomId}
+        currentRoom={currentRoom}
+      />
+    </View>
   );
 };
 

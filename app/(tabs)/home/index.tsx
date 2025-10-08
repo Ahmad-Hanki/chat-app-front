@@ -10,6 +10,7 @@ const Home = () => {
   const [open, setOpen] = React.useState(false);
   const { data } = useUserData();
 
+
   const { data: rooms } = useUsersRooms({
     userId: data?.data.id || "",
     queryConfig: { enabled: !!data?.data.id },

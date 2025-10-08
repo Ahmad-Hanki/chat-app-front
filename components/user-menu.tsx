@@ -25,6 +25,9 @@ export function UserMenu() {
       },
     },
   });
+
+    console.log("User data in Home component:", data?.data);
+
   const popoverTriggerRef = React.useRef<TriggerRef>(null);
 
   async function onSignOut() {
