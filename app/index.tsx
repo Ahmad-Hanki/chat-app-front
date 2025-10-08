@@ -6,7 +6,7 @@ import { ActivityIndicator } from "react-native";
 
 function Index() {
   const { isLoaded, isSignedIn, user } = useUser();
-  const { isLoading } = useUserData({
+  const { isLoading, data } = useUserData({
     queryConfig: {
       enabled:
         !!user?.emailAddresses?.[0].emailAddress && isSignedIn && isLoaded,
@@ -18,7 +18,7 @@ function Index() {
   useEffect(() => {
     if (!isLoaded) return;
     if (isSignedIn) {
-      if (isLoading) return;
+      if (isLoading && data) return;
       router.replace("/(tabs)/home");
     } else router.replace("/(auth)/sign-in");
   }, [isLoaded, isSignedIn, isLoading]);

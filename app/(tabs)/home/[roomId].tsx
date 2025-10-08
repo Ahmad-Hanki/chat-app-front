@@ -1,9 +1,10 @@
 import { MessageList } from "@/components/home/chat/message-list";
+import { socket } from "@/lib/socket";
 import { useUserData } from "@/server/auth";
 import { useRoomsMessages } from "@/server/messages/get-room-messages";
 import { useUsersRooms } from "@/server/usersRooms/get-users-rooms";
 import { useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -19,13 +20,41 @@ const RoomId = () => {
     userId: data?.data.id || "",
     queryConfig: { enabled: !!data?.data.id },
   });
+
   const currentRoom = rooms?.data.find(
     (room) => room.room.roomNumber.toString() == roomId
   );
+
   const { data: messages, isPending } = useRoomsMessages({
     roomId: currentRoom?.room.id || "",
     queryConfig: { enabled: !!currentRoom?.room.id },
   });
+
+  const [liveMessages, setLiveMessages] = React.useState(messages?.data ?? []);
+
+  // Join the socket room
+  useEffect(() => {
+    if (!currentRoom?.room.id) return;
+
+    // join the room
+    socket.emit("join-room", currentRoom.room.id);
+    
+    // Listens for "new-message" events from the server.
+    socket.on("new-message", (message) => {
+      setLiveMessages((prev) => [...prev, message]);
+    });
+
+    return () => {
+      socket.off("new-message");
+    };
+  }, [currentRoom?.room.id]);
+
+  // Sync when REST data loads
+  useEffect(() => {
+    if (messages?.data) {
+      setLiveMessages(messages.data);
+    }
+  }, [messages]);
 
   if (isPending) {
     return (
@@ -43,7 +72,7 @@ const RoomId = () => {
     >
       <View style={{ flex: 1 }}>
         <MessageList
-          messages={messages?.data ?? []}
+          messages={liveMessages}
           roomId={roomId}
           currentRoom={currentRoom}
         />
