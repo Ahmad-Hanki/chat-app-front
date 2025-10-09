@@ -16,6 +16,7 @@ function Index() {
   const router = useRouter();
 
   useEffect(() => {
+    console.log("Auth State:", { isLoaded, isSignedIn, isLoading, data });
     if (!isLoaded) return;
 
     if (!isSignedIn) {

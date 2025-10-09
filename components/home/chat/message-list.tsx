@@ -17,7 +17,7 @@ export const MessageList = ({
 }) => {
   return (
     <View style={{ flex: 1 }}>
-      <ChatHeader roomId={roomId} currentRoom={currentRoom} />
+      <ChatHeader currentRoom={currentRoom} />
 
       <FlatList
         style={{ flex: 1 }}
